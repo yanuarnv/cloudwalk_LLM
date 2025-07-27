@@ -37,6 +37,11 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_gen: ^5.11.0
   flutter_svg: ^2.2.0
+  equatable: ^2.0.7
+  flutter_bloc: ^9.1.1
+  dartz: ^0.10.1
+  replay_bloc: ^0.3.0
+  oktoast: ^3.4.0
 
 dev_dependencies:
   flutter_test:

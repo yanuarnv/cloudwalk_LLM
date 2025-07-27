@@ -17,6 +17,9 @@ class ColorValue {
   /// Color: #4F4F96
   static const Color primary = Color(0xFF4F4F96);
 
+  /// Color: #E8E8F2
+  static const Color secondary = Color(0xFFE8E8F2);
+
   /// Color: #F0F2F5
   static const Color unSelected = Color(0xFFF0F2F5);
 }
