@@ -29,7 +29,8 @@ class LayoutEditorCubit extends ReplayCubit<LayoutState> {
         }
       },
       (r) {
-        emit(LayoutState(data: ScaffoldEntity.fromJson(r.toJson())));
+
+        emit(state.copyWith(data: r));
       },
     );
   }

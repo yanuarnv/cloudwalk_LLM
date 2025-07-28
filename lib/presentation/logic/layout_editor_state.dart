@@ -25,5 +25,5 @@ class LayoutState extends Equatable {
 
   @override
   // TODO: implement props
-  List<Object?> get props => [data, isLoading, hasError];
+  List<Object?> get props => [data];
 }

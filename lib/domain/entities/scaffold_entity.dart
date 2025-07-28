@@ -307,6 +307,7 @@ class ButtonProperties extends WidgetProperties {
       'padding': padding?.toJson(),
       'backgroundColor': backgroundColor,
       'elevation': elevation,
+      'width':width,
     };
   }
 }

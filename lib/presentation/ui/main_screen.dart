@@ -37,8 +37,8 @@ class _MainScreenState extends State<MainScreen> {
       create: (context) => LayoutEditorCubit(
         RepositoryProvider.of<LayoutEditorRepository>(context),
       ),
-      child:
-          BlocBuilder<LayoutEditorCubit, LayoutState>(builder: (context, state) {
+      child: BlocBuilder<LayoutEditorCubit, LayoutState>(
+          builder: (context, state) {
         return GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
@@ -123,19 +123,32 @@ class _MainScreenState extends State<MainScreen> {
               );
               break;
             case Menu.undo:
-              if(context.read<LayoutEditorCubit>().canUndo){
+              if (context.read<LayoutEditorCubit>().canUndo) {
                 context.read<LayoutEditorCubit>().undo();
-              }else{
+              } else {
                 showToastWidget(
-                  ToastWidget(msg: "No Undo History",type: ToastType.warning,),
+                  ToastWidget(
+                    msg: "No Undo History",
+                    type: ToastType.warning,
+                  ),
                   position: ToastPosition.top,
                 );
               }
               break;
             case Menu.redo:
-              context.read<LayoutEditorCubit>().redo();
+              if (context.read<LayoutEditorCubit>().canRedo) {
+                context.read<LayoutEditorCubit>().redo();
+              } else {
+                showToastWidget(
+                  ToastWidget(
+                    msg: "No Redo History",
+                    type: ToastType.warning,
+                  ),
+                  position: ToastPosition.top,
+                );
+              }
             default:
-              context.read<LayoutEditorCubit>().reset();
+              _showResetDialog(context);
           }
         },
         itemBuilder: (BuildContext context) => [
@@ -184,6 +197,43 @@ class _MainScreenState extends State<MainScreen> {
           colorFilter: ColorFilter.mode(ColorValue.primary, BlendMode.srcIn),
         ),
       ),
+    );
+  }
+
+  Future<void> _showResetDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Reset Layout?'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'This action will restore the layout to its default state. Any unsaved changes will be lost.Are you sure you want to continue?',
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                context.read<LayoutEditorCubit>().reset();
+                context.read<LayoutEditorCubit>().clearHistory();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

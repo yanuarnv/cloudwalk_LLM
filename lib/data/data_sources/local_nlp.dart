@@ -93,7 +93,6 @@ class LocalNlp extends Processor {
       children: updatedChildren,
     );
 
-    // Return new ScaffoldEntity with updated column
     return ScaffoldEntity(
       type: data.type,
       properties: data.properties,
@@ -231,7 +230,7 @@ class LocalNlp extends Processor {
         updatedProperties = _createUpdatedButtonProperties(
             widget.properties! as ButtonProperties,
             property,
-            value
+            value,
         );
         break;
       case 'text':
@@ -502,6 +501,7 @@ class LocalNlp extends Processor {
 
   double _parseDoubleValue(String value) {
     try {
+
       return double.parse(value);
     } catch (e) {
       throw InternalFailure("Invalid number format: $value");
