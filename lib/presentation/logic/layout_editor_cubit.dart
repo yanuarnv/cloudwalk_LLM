@@ -10,36 +10,32 @@ import 'package:replay_bloc/replay_bloc.dart';
 
 part 'layout_editor_state.dart';
 
-part 'layout_editor_event.dart';
-
-class LayoutEditorBloc extends ReplayBloc<LayoutEditorEvent, LayoutState> {
+class LayoutEditorCubit extends ReplayCubit<LayoutState> {
   final LayoutEditorRepository _repository;
 
-  LayoutEditorBloc(this._repository)
-      : super(LayoutState(data: _getInitialData())) {
-    on<ChangeLayout>(changeLayout);
-  }
+  LayoutEditorCubit(this._repository)
+      : super(LayoutState(data: _getInitialData()));
 
-  void changeLayout(ChangeLayout event, Emitter<LayoutState> emit) async {
-    emit(state.copyWith(isLoading: true));
-    final data = await _repository.changeLayout(event.prompt, event.context);
+  void changeLayout(String prompt,BuildContext context) async {
+    final data = await _repository.changeLayout(prompt, context);
     data.fold(
       (l) {
-        if (l is ServerFailure) {
-          emit(state.copyWith(error: l.toString(), isLoading: false));
-        }
+        if (l is ServerFailure) {}
         if (l is InternalFailure) {
-          emit(state.copyWith(error: l.toString(), isLoading: false));
           showToastWidget(
-            ToastWidget(msg: l.msg),
+            ToastWidget(msg: l.msg,type: ToastType.error,),
             position: ToastPosition.top,
           );
         }
       },
-      (r) => emit(state.copyWith(data: r, isLoading: false)),
+      (r) {
+        emit(LayoutState(data: ScaffoldEntity.fromJson(r.toJson())));
+      },
     );
   }
-
+  void reset(){
+    emit(LayoutState(data: _getInitialData()));
+  }
   static ScaffoldEntity _getInitialData() {
     return ScaffoldEntity.fromJson({
       "type": "scaffold",

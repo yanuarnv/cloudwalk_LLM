@@ -2,7 +2,8 @@ import 'package:cloudwalk_llm/application/cl_text_style.dart';
 import 'package:cloudwalk_llm/domain/repositories/layout_editor_repository.dart';
 import 'package:cloudwalk_llm/gen/assets.gen.dart';
 import 'package:cloudwalk_llm/helpers/layout_builder.dart';
-import 'package:cloudwalk_llm/presentation/logic/layout_editor_bloc.dart';
+import 'package:cloudwalk_llm/presentation/componets/toast_widget.dart';
+import 'package:cloudwalk_llm/presentation/logic/layout_editor_cubit.dart';
 import 'package:cloudwalk_llm/presentation/ui/preview_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:cloudwalk_llm/gen/colors.gen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oktoast/oktoast.dart';
 
 import '../componets/cl_textfiled.dart';
 
@@ -32,11 +34,11 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LayoutEditorBloc(
+      create: (context) => LayoutEditorCubit(
         RepositoryProvider.of<LayoutEditorRepository>(context),
       ),
       child:
-          BlocBuilder<LayoutEditorBloc, LayoutState>(builder: (context, state) {
+          BlocBuilder<LayoutEditorCubit, LayoutState>(builder: (context, state) {
         return GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
@@ -65,73 +67,7 @@ class _MainScreenState extends State<MainScreen> {
                     }),
               ),
               actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: PopupMenuButton<Menu>(
-                    onSelected: (value) {
-                      switch (value) {
-                        case Menu.preview:
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PreviewScreen(
-                                showWidgetIdListenable: _showIdWidget,
-                                blocProvider: context,
-                              ),
-                            ),
-                          );
-                          break;
-                        default:
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<Menu>(
-                        value: Menu.preview,
-                        child: ListTile(
-                          trailing: Icon(Icons.visibility_outlined),
-                          title: Text(
-                            "Preview Layout  ",
-                            style: ClTextStyle.bodyTextStyle,
-                          ),
-                        ),
-                      ),
-                      PopupMenuItem<Menu>(
-                        value: Menu.undo,
-                        child: ListTile(
-                          trailing: Icon(Icons.undo),
-                          title: Text(
-                            "Undo",
-                            style: ClTextStyle.bodyTextStyle,
-                          ),
-                        ),
-                      ),
-                      PopupMenuItem<Menu>(
-                        value: Menu.redo,
-                        child: ListTile(
-                          trailing: Icon(Icons.redo),
-                          title: Text(
-                            "Redo",
-                            style: ClTextStyle.bodyTextStyle,
-                          ),
-                        ),
-                      ),
-                      PopupMenuItem<Menu>(
-                        value: Menu.reset,
-                        child: ListTile(
-                          trailing: Icon(Icons.restart_alt),
-                          title: Text(
-                            "Reset",
-                            style: ClTextStyle.bodyTextStyle,
-                          ),
-                        ),
-                      ),
-                    ],
-                    icon: Assets.icons.ellipsisCircle.svg(
-                      colorFilter:
-                          ColorFilter.mode(ColorValue.primary, BlendMode.srcIn),
-                    ),
-                  ),
-                ),
+                _buildActionMenu(context),
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(1),
@@ -143,15 +79,10 @@ class _MainScreenState extends State<MainScreen> {
             ),
             body: Stack(
               children: [
-                if (state.isLoading)
-                  Center(
-                    child: Text("Loading....."),
-                  )
-                else
-                  CustomLayoutBuilder(
-                          showWidgetIdListenable: _showIdWidget,
-                          userAction: false)
-                      .buildFromScaffoldEntity(state.data!),
+                CustomLayoutBuilder(
+                        showWidgetIdListenable: _showIdWidget,
+                        userAction: false)
+                    .buildFromScaffoldEntity(state.data!),
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -160,12 +91,9 @@ class _MainScreenState extends State<MainScreen> {
                     controller: promtController,
                     sendPrompt: () {
                       FocusScope.of(context).unfocus();
-                      context.read<LayoutEditorBloc>().add(
-                            ChangeLayout(
-                              promtController.text,
-                              context,
-                            ),
-                          );
+                      context
+                          .read<LayoutEditorCubit>()
+                          .changeLayout(promtController.text, context);
                     },
                   ),
                 ),
@@ -174,6 +102,88 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       }),
+    );
+  }
+
+  Padding _buildActionMenu(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: PopupMenuButton<Menu>(
+        onSelected: (value) {
+          switch (value) {
+            case Menu.preview:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PreviewScreen(
+                    showWidgetIdListenable: _showIdWidget,
+                    blocProvider: context,
+                  ),
+                ),
+              );
+              break;
+            case Menu.undo:
+              if(context.read<LayoutEditorCubit>().canUndo){
+                context.read<LayoutEditorCubit>().undo();
+              }else{
+                showToastWidget(
+                  ToastWidget(msg: "No Undo History",type: ToastType.warning,),
+                  position: ToastPosition.top,
+                );
+              }
+              break;
+            case Menu.redo:
+              context.read<LayoutEditorCubit>().redo();
+            default:
+              context.read<LayoutEditorCubit>().reset();
+          }
+        },
+        itemBuilder: (BuildContext context) => [
+          PopupMenuItem<Menu>(
+            value: Menu.preview,
+            child: ListTile(
+              trailing: Icon(Icons.visibility_outlined),
+              title: Text(
+                "Preview Layout  ",
+                style: ClTextStyle.bodyTextStyle,
+              ),
+            ),
+          ),
+          PopupMenuItem<Menu>(
+            value: Menu.undo,
+            child: ListTile(
+              trailing: Icon(Icons.undo),
+              title: Text(
+                "Undo",
+                style: ClTextStyle.bodyTextStyle,
+              ),
+            ),
+          ),
+          PopupMenuItem<Menu>(
+            value: Menu.redo,
+            child: ListTile(
+              trailing: Icon(Icons.redo),
+              title: Text(
+                "Redo",
+                style: ClTextStyle.bodyTextStyle,
+              ),
+            ),
+          ),
+          PopupMenuItem<Menu>(
+            value: Menu.reset,
+            child: ListTile(
+              trailing: Icon(Icons.restart_alt),
+              title: Text(
+                "Reset",
+                style: ClTextStyle.bodyTextStyle,
+              ),
+            ),
+          ),
+        ],
+        icon: Assets.icons.ellipsisCircle.svg(
+          colorFilter: ColorFilter.mode(ColorValue.primary, BlendMode.srcIn),
+        ),
+      ),
     );
   }
 }

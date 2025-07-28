@@ -1,3 +1,4 @@
+import 'package:cloudwalk_llm/app_bloc_observer.dart';
 import 'package:cloudwalk_llm/application/app_theme_data.dart';
 import 'package:cloudwalk_llm/data/data_sources/local_nlp.dart';
 import 'package:cloudwalk_llm/data/data_sources/processor.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:oktoast/oktoast.dart';
 
 void main() {
+  Bloc.observer = AppBlocObserver();
   runApp(const MyApp());
 }
 
@@ -28,7 +30,6 @@ class MyApp extends StatelessWidget {
             RepositoryProvider.of<Processor>(context),
           ),
         ),
-
       ],
       child: OKToast(
         child: MaterialApp(

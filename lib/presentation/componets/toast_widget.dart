@@ -1,11 +1,12 @@
 import 'package:cloudwalk_llm/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+enum ToastType{error,warning}
 class ToastWidget extends StatelessWidget {
   final String msg;
+  final ToastType type;
 
-  const ToastWidget({super.key, required this.msg});
+  const ToastWidget({super.key, required this.msg,required this.type});
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,4 @@
-part of 'layout_editor_bloc.dart';
+part of 'layout_editor_cubit.dart';
 
 class LayoutState extends Equatable {
   final ScaffoldEntity? data;

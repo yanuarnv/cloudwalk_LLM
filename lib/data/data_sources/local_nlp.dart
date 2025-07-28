@@ -1,115 +1,28 @@
 import 'package:cloudwalk_llm/application/failure.dart';
 import 'package:cloudwalk_llm/data/data_sources/processor.dart';
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
-import 'package:cloudwalk_llm/presentation/logic/layout_editor_bloc.dart';
+import 'package:cloudwalk_llm/presentation/logic/layout_editor_cubit.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// class LocalNlp extends Processor {
-//   @override
-//   Future<ScaffoldEntity> nlpProcessing(
-//       String prompt, BuildContext context) async {
-//     final state = context.read<LayoutEditorBloc>().state;
-//     final data = state.data;
-//     // todo: create if else to parse prompt into
-//     // case 1 : action + widget + style + value
-//     // case 2 : action + style + value
-//     // solution case 1
-//     final tokens = prompt.split(' ');
-//     final action = tokens.first;
-//
-//     final widgetType = tokens.length > 1 &&
-//             ['text', 'button', 'textfield', 'image'].contains(tokens[1])
-//         ? tokens[1]
-//         : null;
-//
-//     switch (action) {
-//       case 'add':
-//         if (widgetType != null) {
-//           final list =
-//               data!.children.first.children!.where((w) => w.type == widgetType);
-//           final id = list.length + 1;
-//           final widget = WidgetModel(
-//             type: widgetType,
-//             properties: WidgetModel.defaultProperties(widgetType),
-//             id: '$widgetType${id.toString()}',
-//           );
-//           data.children.first.children!.add(widget);
-//         }
-//         return data!;
-//       case 'remove':
-//         data!.children.first.children!.removeWhere(
-//           (w) => w.type == widgetType,
-//         );
-//         return data;
-//       case 'change':
-//         // Example: change background to red
-//         if (tokens[1] == 'background') {
-//           data!.properties!.background = tokens[3];
-//           return data;
-//         } else {
-//           // Example: change button color to red
-//           var widgetList = data!.children.first.children!
-//               .where((widget) => widget.type == tokens[1]);
-//           if (widgetList.isNotEmpty) {
-//             final widget = widgetList.first;
-//             if (tokens[2] == 'color') {
-//               _changeBackground(widget, tokens[4]);
-//               return data;
-//             } else {
-//               throw InternalFailure("Style not support");
-//             }
-//           } else {
-//             throw InternalFailure("Widget not found");
-//           }
-//         }
-//       default:
-//         throw InternalFailure("Unsupported prompt: $prompt");
-//     }
-//   }
-//
-//   WidgetModel _changeBackground(WidgetModel widget, String color) {
-//     try {
-//       int.parse(color);
-//     } catch (e) {
-//       throw InternalFailure("Color not support");
-//     }
-//     switch (widget.type) {
-//       case 'button':
-//         (widget.properties! as ButtonProperties).backgroundColor = color;
-//         return widget;
-//       case 'textfield':
-//         (widget.properties! as TextFieldProperties).decoration!.filled = true;
-//         (widget.properties! as TextFieldProperties).decoration!.fillColor =
-//             color;
-//         return widget;
-//       case 'text':
-//         (widget.properties! as TextProperties).style!.color = color;
-//         return widget;
-//       default:
-//         throw InternalFailure("Unsupported prompt");
-//     }
-//   }
-// }
 class LocalNlp extends Processor {
-  // Supported colors map for better validation
+  // Your existing constants remain the same...
   static const Map<String, String> colorMap = {
-    'red': '0xffF44336',
-    'blue': '0xff2196F3',
-    'green': '0xff4CAF50',
-    'yellow': '0xffFFEB3B',
-    'orange': '0xffFF9800',
-    'purple': '0xff9C27B0',
-    'pink': '0xffE91E63',
-    'black': '0xff000000',
-    'white': '0xffffffff',
-    'grey': '0xff9E9E9E',
-    'gray': '0xff9E9E9E',
-    'transparent': '0x00000000',
+    'red': 'F44336',
+    'blue': '2196F3',
+    'green': '4CAF50',
+    'yellow': 'FFEB3B',
+    'orange': 'FF9800',
+    'purple': '9C27B0',
+    'pink': 'E91E63',
+    'black': '000000',
+    'white': 'ffffff',
+    'grey': '9E9E9E',
+    'gray': '9E9E9E',
+    'transparent': '00000000',
   };
 
-  // Widget-specific supported properties
   static const Map<String, Set<String>> widgetSupportedProperties = {
     'text': {'color', 'size', 'weight', 'family', 'text'},
     'button': {'color', 'width', 'text', 'elevation'},
@@ -118,16 +31,16 @@ class LocalNlp extends Processor {
   };
 
   @override
-  Future<ScaffoldEntity> nlpProcessing(
-      String prompt, BuildContext context) async {
-    final state = context.read<LayoutEditorBloc>().state;
-    final data = state.data;
+  Future<ScaffoldEntity> nlpProcessing(String prompt, BuildContext context) async {
+    final state = context.read<LayoutEditorCubit>().state;
+    final data = state.data; // state is now ScaffoldEntity directly
+
+    final tokens = prompt.toLowerCase().trim().split(RegExp(r'\s+'));
+    final action = tokens.first;
 
     if (data == null) {
       throw InternalFailure("No data available");
     }
-    final tokens = prompt.toLowerCase().trim().split(RegExp(r'\s+'));
-    final action = tokens.first;
 
     switch (action) {
       case 'add':
@@ -154,21 +67,38 @@ class LocalNlp extends Processor {
     }
 
     // Generate unique ID
-    final existingWidgets =
-        data.children.first.children!.where((w) => w.type == widgetType);
+    final existingWidgets = data.children.first.children!
+        .where((w) => w.type == widgetType);
     final id = existingWidgets.length + 1;
 
-    final widget = WidgetModel(
+    // Create new widget
+    final newWidget = WidgetModel(
       type: widgetType,
       properties: WidgetModel.defaultProperties(widgetType),
       id: '$widgetType$id',
     );
 
     // Apply additional properties from prompt if provided
-    _applyPropertiesFromTokens(widget, tokens.skip(2).toList());
+    final updatedWidget = _applyPropertiesFromTokens(newWidget, tokens.skip(2).toList());
 
-    data.children.first.children!.add(widget);
-    return data;
+    // Create new list with added widget (immutable approach)
+    final updatedChildren = List<WidgetModel>.from(data.children.first.children!)
+      ..add(updatedWidget);
+
+    // Create new column with updated children
+    final updatedColumn = WidgetModel(
+      type: data.children.first.type,
+      id: data.children.first.id,
+      properties: data.children.first.properties,
+      children: updatedChildren,
+    );
+
+    // Return new ScaffoldEntity with updated column
+    return ScaffoldEntity(
+      type: data.type,
+      properties: data.properties,
+      children: [updatedColumn],
+    );
   }
 
   ScaffoldEntity _handleRemoveAction(List<String> tokens, ScaffoldEntity data) {
@@ -177,236 +107,356 @@ class LocalNlp extends Processor {
     }
 
     final target = tokens[1];
+    List<WidgetModel> updatedChildren = List.from(data.children.first.children!);
 
     // Remove by ID: "remove button1"
     if (_isWidgetId(target)) {
-      data.children.first.children!.removeWhere((w) => w.id == target);
-      return data;
+      updatedChildren.removeWhere((w) => w.id == target);
     }
-
     // Remove by type: "remove button"
-    if (['text', 'button', 'textfield', 'image'].contains(target)) {
-      // Check if specific instance mentioned: "remove button 2"
+    else if (['text', 'button', 'textfield', 'image'].contains(target)) {
       if (tokens.length > 2 && _isNumber(tokens[2])) {
         final instanceNumber = int.parse(tokens[2]);
         final targetId = '$target$instanceNumber';
-        data.children.first.children!.removeWhere((w) => w.id == targetId);
+        updatedChildren.removeWhere((w) => w.id == targetId);
       } else {
-        // Remove all widgets of this type
-        data.children.first.children!.removeWhere((w) => w.type == target);
+        updatedChildren.removeWhere((w) => w.type == target);
       }
-      return data;
     }
-
     // Remove all: "remove all"
-    if (target == 'all') {
-      data.children.first.children!.clear();
-      return data;
+    else if (target == 'all') {
+      updatedChildren.clear();
+    } else {
+      throw InternalFailure("Invalid remove target: $target");
     }
 
-    throw InternalFailure("Invalid remove target: $target");
+    // Create new column with updated children
+    final updatedColumn = WidgetModel(
+      type: data.children.first.type,
+      id: data.children.first.id,
+      properties: data.children.first.properties,
+      children: updatedChildren,
+    );
+
+    // Return new ScaffoldEntity
+    return ScaffoldEntity(
+      type: data.type,
+      properties: data.properties,
+      children: [updatedColumn],
+    );
   }
 
   ScaffoldEntity _handleChangeAction(List<String> tokens, ScaffoldEntity data) {
     if (tokens.length < 4) {
-      throw InternalFailure(
-          "Change command requires target, property, and value");
+      throw InternalFailure("Change command requires target, property, and value");
     }
 
     // Handle background change: "change background to red"
     if (tokens[1] == 'background') {
       final colorValue = _resolveColorValue(tokens[3]);
-      data.properties!.background = colorValue;
-      return data;
+
+      // Create new properties with updated background
+      final updatedProperties = ScaffoldProperties(
+        background: colorValue,
+      );
+
+      return ScaffoldEntity(
+        type: data.type,
+        properties: updatedProperties,
+        children: data.children,
+      );
     }
 
     // Handle widget-specific changes
     final target = tokens[1];
     final property = tokens[2];
-    final value =
-        tokens.length > 4 ? tokens[4] : tokens[3]; // Handle "to" keyword
+    final value = tokens.length > 4 ? tokens[4] : tokens[3];
 
-    // Find target widget
-    WidgetModel? targetWidget = _findTargetWidget(target, data);
-    if (targetWidget == null) {
+    // Find target widget index and widget
+    final widgets = data.children.first.children!;
+    final targetIndex = _findTargetWidgetIndex(target, widgets);
+
+    if (targetIndex == -1) {
       throw InternalFailure("Widget not found: $target");
     }
 
+    final targetWidget = widgets[targetIndex];
+
     // Validate property for widget type
     if (!widgetSupportedProperties[targetWidget.type]!.contains(property)) {
-      throw InternalFailure(
-          "Property '$property' not supported for ${targetWidget.type}");
+      throw InternalFailure("Property '$property' not supported for ${targetWidget.type}");
     }
 
-    // Apply the change
-    _updateWidgetProperty(targetWidget, property, value);
-    return data;
+    // Create updated widget with new property
+    final updatedWidget = _createUpdatedWidget(targetWidget, property, value);
+
+    // Create new children list with updated widget
+    final updatedChildren = List<WidgetModel>.from(widgets);
+    updatedChildren[targetIndex] = updatedWidget;
+
+    // Create new column with updated children
+    final updatedColumn = WidgetModel(
+      type: data.children.first.type,
+      id: data.children.first.id,
+      properties: data.children.first.properties,
+      children: updatedChildren,
+    );
+
+    return ScaffoldEntity(
+      type: data.type,
+      properties: data.properties,
+      children: [updatedColumn],
+    );
   }
 
-  WidgetModel? _findTargetWidget(String target, ScaffoldEntity data) {
-    final widgets = data.children.first.children!;
-
-    // Try to find by exact ID first: "button1", "text2"
+  int _findTargetWidgetIndex(String target, List<WidgetModel> widgets) {
+    // Try to find by exact ID first
     if (_isWidgetId(target)) {
-      return widgets.firstWhere(
-        (w) => w.id == target,
-        orElse: () =>
-            throw InternalFailure("Widget with ID '$target' not found"),
-      );
+      return widgets.indexWhere((w) => w.id == target);
     }
 
-    // Try to find by type (first occurrence): "button", "text"
+    // Try to find by type (first occurrence)
     if (['text', 'button', 'textfield', 'image'].contains(target)) {
-      final typeWidgets = widgets.where((w) => w.type == target).toList();
-      if (typeWidgets.isNotEmpty) {
-        return typeWidgets.first;
-      }
+      return widgets.indexWhere((w) => w.type == target);
     }
 
-    return null;
+    return -1;
   }
 
-  void _updateWidgetProperty(
-      WidgetModel widget, String property, String value) {
+  WidgetModel _createUpdatedWidget(WidgetModel widget, String property, String value) {
+    WidgetProperties updatedProperties;
+
     switch (widget.type) {
       case 'button':
-        _updateButtonProperty(widget, property, value);
+        updatedProperties = _createUpdatedButtonProperties(
+            widget.properties! as ButtonProperties,
+            property,
+            value
+        );
         break;
       case 'text':
-        _updateTextProperty(widget, property, value);
+        updatedProperties = _createUpdatedTextProperties(
+            widget.properties! as TextProperties,
+            property,
+            value
+        );
         break;
       case 'textfield':
-        _updateTextFieldProperty(widget, property, value);
+        updatedProperties = _createUpdatedTextFieldProperties(
+            widget.properties! as TextFieldProperties,
+            property,
+            value
+        );
         break;
       case 'image':
-        _updateImageProperty(widget, property, value);
+        updatedProperties = _createUpdatedImageProperties(
+            widget.properties! as ImageProperties,
+            property,
+            value
+        );
         break;
       default:
         throw InternalFailure("Unsupported widget type: ${widget.type}");
     }
+
+    return WidgetModel(
+      type: widget.type,
+      id: widget.id,
+      properties: updatedProperties,
+      children: widget.children,
+    );
   }
 
-  void _updateButtonProperty(
-      WidgetModel widget, String property, String value) {
-    final props = widget.properties! as ButtonProperties;
-
+  ButtonProperties _createUpdatedButtonProperties(
+      ButtonProperties props,
+      String property,
+      String value
+      ) {
     switch (property) {
       case 'color':
-        final colorValue = _resolveColorValue(value);
-        props.backgroundColor = colorValue;
-        break;
+        return ButtonProperties(
+          text: props.text,
+          width: props.width,
+          padding: props.padding,
+          backgroundColor: _resolveColorValue(value),
+          elevation: props.elevation,
+        );
       case 'width':
-        final width = _parseDoubleValue(value);
-        props.width = width;
+        return ButtonProperties(
+          text: props.text,
+          width: _parseDoubleValue(value),
+          padding: props.padding,
+          backgroundColor: props.backgroundColor,
+          elevation: props.elevation,
+        );
       case 'text':
-        props.text = value;
-        break;
+        return ButtonProperties(
+          text: value,
+          width: props.width,
+          padding: props.padding,
+          backgroundColor: props.backgroundColor,
+          elevation: props.elevation,
+        );
       case 'elevation':
-        final elevation = _parseDoubleValue(value);
-        props.elevation = elevation;
-        break;
+        return ButtonProperties(
+          text: props.text,
+          width: props.width,
+          padding: props.padding,
+          backgroundColor: props.backgroundColor,
+          elevation: _parseDoubleValue(value),
+        );
       default:
         throw InternalFailure("Unsupported button property: $property");
     }
   }
 
-  void _updateTextProperty(WidgetModel widget, String property, String value) {
-    final props = widget.properties! as TextProperties;
+  TextProperties _createUpdatedTextProperties(
+      TextProperties props,
+      String property,
+      String value
+      ) {
+    TextStyleModel? updatedStyle = props.style;
 
     switch (property) {
       case 'color':
-        final colorValue = _resolveColorValue(value);
-        props.style ??= TextStyleModel();
-        props.style!.color = colorValue;
+        updatedStyle = TextStyleModel(
+          fontSize: props.style?.fontSize,
+          fontWeight: props.style?.fontWeight,
+          fontFamily: props.style?.fontFamily,
+          color: _resolveColorValue(value),
+        );
         break;
       case 'size':
-        final fontSize = _parseDoubleValue(value);
-        props.style ??= TextStyleModel();
-        props.style!.fontSize = fontSize;
+        updatedStyle = TextStyleModel(
+          fontSize: _parseDoubleValue(value),
+          fontWeight: props.style?.fontWeight,
+          fontFamily: props.style?.fontFamily,
+          color: props.style?.color,
+        );
         break;
       case 'weight':
-        props.style ??= TextStyleModel();
-        props.style!.fontWeight = _mapFontWeight(value);
+        updatedStyle = TextStyleModel(
+          fontSize: props.style?.fontSize,
+          fontWeight: _mapFontWeight(value),
+          fontFamily: props.style?.fontFamily,
+          color: props.style?.color,
+        );
         break;
       case 'family':
-        props.style ??= TextStyleModel();
-        props.style!.fontFamily = value;
+        updatedStyle = TextStyleModel(
+          fontSize: props.style?.fontSize,
+          fontWeight: props.style?.fontWeight,
+          fontFamily: value,
+          color: props.style?.color,
+        );
         break;
-      case 'text':
-        props.text = value;
-        break;
-      default:
-        throw InternalFailure("Unsupported text property: $property");
     }
+
+    return TextProperties(
+      text: property == 'text' ? value : props.text,
+      alignment: props.alignment,
+      padding: props.padding,
+      style: updatedStyle,
+    );
   }
 
-  void _updateTextFieldProperty(
-      WidgetModel widget, String property, String value) {
-    final props = widget.properties! as TextFieldProperties;
+  TextFieldProperties _createUpdatedTextFieldProperties(
+      TextFieldProperties props,
+      String property,
+      String value
+      ) {
+    InputDecorationModel? updatedDecoration = props.decoration;
 
     switch (property) {
       case 'color':
-        final colorValue = _resolveColorValue(value);
-        props.decoration ??= InputDecorationModel();
-        props.decoration!.filled = true;
-        props.decoration!.fillColor = colorValue;
+        updatedDecoration = InputDecorationModel(
+          fillColor: _resolveColorValue(value),
+          filled: true,
+          borderRadius: props.decoration?.borderRadius,
+          borderSide: props.decoration?.borderSide,
+          hintText: props.decoration?.hintText,
+          hintStyle: props.decoration?.hintStyle,
+        );
         break;
-      case 'width':
-        // Note: TextFieldProperties might need width property added
-        // Could be handled by wrapping in SizedBox or Container
-        throw InternalFailure(
-            "Width property for textfield needs implementation");
       case 'hint':
-        props.decoration ??= InputDecorationModel();
-        props.decoration!.hintText = value;
-        break;
-      case 'border':
-        props.decoration ??= InputDecorationModel();
-        props.decoration!.borderSide = value;
+        updatedDecoration = InputDecorationModel(
+          fillColor: props.decoration?.fillColor,
+          filled: props.decoration?.filled,
+          borderRadius: props.decoration?.borderRadius,
+          borderSide: props.decoration?.borderSide,
+          hintText: value,
+          hintStyle: props.decoration?.hintStyle,
+        );
         break;
       case 'radius':
-        final radius = _parseDoubleValue(value);
-        props.decoration ??= InputDecorationModel();
-        props.decoration!.borderRadius = radius;
+        updatedDecoration = InputDecorationModel(
+          fillColor: props.decoration?.fillColor,
+          filled: props.decoration?.filled,
+          borderRadius: _parseDoubleValue(value),
+          borderSide: props.decoration?.borderSide,
+          hintText: props.decoration?.hintText,
+          hintStyle: props.decoration?.hintStyle,
+        );
         break;
       default:
         throw InternalFailure("Unsupported textfield property: $property");
     }
+
+    return TextFieldProperties(
+      padding: props.padding,
+      decoration: updatedDecoration,
+    );
   }
 
-  void _updateImageProperty(WidgetModel widget, String property, String value) {
-    final props = widget.properties! as ImageProperties;
-
+  ImageProperties _createUpdatedImageProperties(
+      ImageProperties props,
+      String property,
+      String value
+      ) {
     switch (property) {
       case 'width':
-        final width = _parseDoubleValue(value);
-        props.width = width;
-        break;
+        return ImageProperties(
+          url: props.url,
+          width: _parseDoubleValue(value),
+          height: props.height,
+          fit: props.fit,
+        );
       case 'height':
-        final height = _parseDoubleValue(value);
-        props.height = height;
-        break;
+        return ImageProperties(
+          url: props.url,
+          width: props.width,
+          height: _parseDoubleValue(value),
+          fit: props.fit,
+        );
       case 'fit':
-        props.fit = _mapBoxFit(value);
-        break;
+        return ImageProperties(
+          url: props.url,
+          width: props.width,
+          height: props.height,
+          fit: _mapBoxFit(value),
+        );
       case 'url':
-        props.url = value;
-        break;
+        return ImageProperties(
+          url: value,
+          width: props.width,
+          height: props.height,
+          fit: props.fit,
+        );
       default:
-        throw InternalFailure("Unsupported image property");
+        throw InternalFailure("Unsupported image property: $property");
     }
   }
 
-  void _applyPropertiesFromTokens(WidgetModel widget, List<String> tokens) {
-    // Parse additional properties from add command
-    // Example: "add button text Login color blue width 200"
+  WidgetModel _applyPropertiesFromTokens(WidgetModel widget, List<String> tokens) {
+    WidgetModel currentWidget = widget;
+
     for (int i = 0; i < tokens.length - 1; i++) {
       final property = tokens[i];
       final value = tokens[i + 1];
 
       if (widgetSupportedProperties[widget.type]!.contains(property)) {
         try {
-          _updateWidgetProperty(widget, property, value);
+          currentWidget = _createUpdatedWidget(currentWidget, property, value);
           i++; // Skip the value token in next iteration
         } catch (e) {
           // Continue parsing other properties if one fails
@@ -414,11 +464,12 @@ class LocalNlp extends Processor {
         }
       }
     }
+
+    return currentWidget;
   }
 
-  // Helper methods
+  // Your existing helper methods remain the same...
   bool _isWidgetId(String target) {
-    // Check if target matches pattern like "button1", "text2", etc.
     final regex = RegExp(r'^(text|button|textfield|image)\d+$');
     return regex.hasMatch(target);
   }
@@ -428,25 +479,22 @@ class LocalNlp extends Processor {
   }
 
   String _resolveColorValue(String value) {
-    // Check named colors first
     if (colorMap.containsKey(value.toLowerCase())) {
       return colorMap[value.toLowerCase()]!;
     }
 
-    // Check if it's already a hex color
     if (value.startsWith('0x')) {
       try {
         int.parse(value.substring(2), radix: 16);
-        return value;
+        return value.substring(2);
       } catch (e) {
         throw InternalFailure("Invalid hex color: $value");
       }
     }
 
-    // Try to parse as number (assuming it's a hex without 0x prefix)
     try {
       int.parse(value, radix: 16);
-      return '0xff$value';
+      return value;
     } catch (e) {
       throw InternalFailure("Invalid color format: $value");
     }
@@ -471,7 +519,6 @@ class LocalNlp extends Processor {
       'extrabold': 'w800',
       'black': 'w900',
     };
-
     return weightMap[weight.toLowerCase()] ?? weight;
   }
 
@@ -485,7 +532,6 @@ class LocalNlp extends Processor {
       'none': 'none',
       'scale': 'scaleDown',
     };
-
     return fitMap[fit.toLowerCase()] ?? 'cover';
   }
 }
