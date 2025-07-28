@@ -1,406 +1,21 @@
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
 import 'package:flutter/material.dart';
 
-// Import your existing class models here
-// import 'your_class_models.dart';
-
-// class CustomLayoutBuilder {
-//   /// Build Flutter widget from ScaffoldEntity
-//   static Widget buildFromScaffoldEntity(ScaffoldEntity scaffoldEntity) {
-//     return _buildScaffold(scaffoldEntity);
-//   }
-//
-//   /// Build Flutter widget from JSON string using your class models
-//   static Widget buildFromJsonString(String jsonString) {
-//     final scaffoldEntity = ScaffoldEntity.fromJsonString(jsonString);
-//     return buildFromScaffoldEntity(scaffoldEntity);
-//   }
-//
-//   static Widget _buildScaffold(ScaffoldEntity scaffoldEntity) {
-//     Color? backgroundColor;
-//     if (scaffoldEntity.properties?.background != null) {
-//       backgroundColor = _parseColor(scaffoldEntity.properties!.background!);
-//     }
-//
-//     Widget? body;
-//     if (scaffoldEntity.children.isNotEmpty) {
-//       if (scaffoldEntity.children.length == 1) {
-//         body = _buildWidgetModel(scaffoldEntity.children[0]);
-//       } else {
-//         body = Column(
-//           children: scaffoldEntity.children
-//               .map((child) => _buildWidgetModel(child))
-//               .toList(),
-//         );
-//       }
-//     }
-//
-//     return Scaffold(
-//       backgroundColor: backgroundColor,
-//       body: SingleChildScrollView(
-//         scrollDirection: Axis.vertical,
-//         child: Padding(
-//           padding: const EdgeInsets.only(bottom: 100),
-//           child: SafeArea(
-//             child: body ?? Container(),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   static Widget _buildWidgetModel(WidgetModel widgetModel) {
-//     switch (widgetModel.type) {
-//       case 'column':
-//         return _buildColumn(widgetModel);
-//       case 'row':
-//         return _buildRow(widgetModel);
-//       case 'text':
-//         return _buildText(widgetModel);
-//       case 'textfield':
-//         return _buildTextField(widgetModel);
-//       case 'button':
-//         return _buildButton(widgetModel);
-//       case 'image':
-//         return _buildImage(widgetModel);
-//       case 'container':
-//         return _buildContainer(widgetModel);
-//       default:
-//         return Container(
-//           padding: const EdgeInsets.all(8),
-//           child: Text('Unknown widget type: ${widgetModel.type}'),
-//         );
-//     }
-//   }
-//
-//   static Widget _buildColumn(WidgetModel widgetModel) {
-//     final List<Widget> childWidgets = widgetModel.children
-//             ?.map((child) => _buildWidgetModel(child))
-//             .toList() ??
-//         [];
-//
-//     Widget column = Column(
-//       mainAxisAlignment: MainAxisAlignment.start,
-//       crossAxisAlignment: CrossAxisAlignment.center,
-//       children: childWidgets,
-//     );
-//
-//     return _applyGenericPadding(column, widgetModel.properties);
-//   }
-//
-//   static Widget _buildRow(WidgetModel widgetModel) {
-//     final List<Widget> childWidgets = widgetModel.children
-//             ?.map((child) => _buildWidgetModel(child))
-//             .toList() ??
-//         [];
-//
-//     Widget row = Row(
-//       mainAxisAlignment: MainAxisAlignment.start,
-//       crossAxisAlignment: CrossAxisAlignment.center,
-//       children: childWidgets,
-//     );
-//
-//     return _applyGenericPadding(row, widgetModel.properties);
-//   }
-//
-//   static Widget _buildText(WidgetModel widgetModel) {
-//     final textProps = widgetModel.properties as TextProperties?;
-//
-//     final String text = textProps?.text ?? '';
-//
-//     TextStyle textStyle = const TextStyle();
-//
-//     if (textProps?.style != null) {
-//       textStyle = TextStyle(
-//         fontSize: textProps!.style!.fontSize,
-//         fontWeight: _parseFontWeight(textProps.style!.fontWeight),
-//         color: textProps.style!.color != null
-//             ? _parseColor(textProps.style!.color!)
-//             : null,
-//         fontFamily: textProps.style!.fontFamily,
-//       );
-//     }
-//
-//     Widget textWidget = Text(
-//       text,
-//       style: textStyle,
-//     );
-//
-//     // Apply alignment
-//     if (textProps?.alignment != null) {
-//       Alignment alignmentValue = _parseAlignment(textProps!.alignment!);
-//       textWidget = Align(
-//         alignment: alignmentValue,
-//         child: textWidget,
-//       );
-//     }
-//
-//     return _applyPadding(textWidget, textProps?.padding);
-//   }
-//
-//   static Widget _buildTextField(WidgetModel widgetModel) {
-//     final textFieldProps = widgetModel.properties as TextFieldProperties?;
-//
-//     InputDecoration inputDecoration = const InputDecoration();
-//
-//     if (textFieldProps?.decoration != null) {
-//       final decoration = textFieldProps!.decoration;
-//
-//       if (decoration != null) {
-//         inputDecoration = InputDecoration(
-//           hintText: decoration.hintText,
-//           hintStyle: decoration.hintStyle != null
-//               ? TextStyle(
-//                   fontSize: decoration.hintStyle!.fontSize,
-//                   color: decoration.hintStyle!.color != null
-//                       ? _parseColor(decoration.hintStyle!.color!)
-//                       : null,
-//                   fontFamily: decoration.hintStyle!.fontFamily,
-//                 )
-//               : null,
-//           filled: decoration.filled ?? false,
-//           fillColor: decoration.fillColor != null
-//               ? _parseColor(decoration.fillColor!)
-//               : null,
-//           border: OutlineInputBorder(
-//             borderRadius: BorderRadius.circular(
-//               decoration.borderRadius ?? 0,
-//             ),
-//             borderSide: decoration.borderSide! == 'none'
-//                 ? BorderSide.none
-//                 : BorderSide.none,
-//           ),
-//           enabledBorder: OutlineInputBorder(
-//             borderRadius: BorderRadius.circular(
-//               decoration.borderRadius ?? 0,
-//             ),
-//             borderSide: decoration.borderSide! == 'none'
-//                 ? BorderSide.none
-//                 : BorderSide.none,
-//           ),
-//           focusedBorder: OutlineInputBorder(
-//             borderRadius: BorderRadius.circular(
-//               decoration.borderRadius ?? 0,
-//             ),
-//             borderSide: decoration.borderSide! == 'none'
-//                 ? BorderSide.none
-//                 : BorderSide.none,
-//           ),
-//         );
-//       }
-//     }
-//
-//     Widget textField = TextField(
-//       decoration: inputDecoration,
-//     );
-//
-//     return _applyPadding(textField, textFieldProps?.padding);
-//   }
-//
-//   static Widget _buildButton(WidgetModel widgetModel) {
-//     final buttonProps = widgetModel.properties as ButtonProperties?;
-//
-//     final String text = buttonProps?.text ?? 'Button';
-//     final Color? backgroundColor = buttonProps?.backgroundColor != null
-//         ? _parseColor(buttonProps!.backgroundColor!)
-//         : null;
-//     final double elevation = buttonProps?.elevation ?? 2.0;
-//
-//     Widget button = ElevatedButton(
-//       onPressed: () {
-//         // Add your button action here
-//         print('Button pressed: $text');
-//       },
-//       style: ElevatedButton.styleFrom(
-//         backgroundColor: backgroundColor,
-//         elevation: elevation,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(8),
-//         ),
-//       ),
-//       child: Text(
-//         text,
-//         style: const TextStyle(color: Colors.white),
-//       ),
-//     );
-//
-//     return _applyPadding(button, buttonProps?.padding);
-//   }
-//
-//   static Widget _buildImage(WidgetModel widgetModel) {
-//     final imageProps = widgetModel.properties as ImageProperties?;
-//
-//     final String? url = imageProps?.url;
-//     final double? width = imageProps?.width;
-//     final double? height = imageProps?.height;
-//     final String? fit = imageProps?.fit;
-//
-//     if (url == null) {
-//       return Container(
-//         width: width,
-//         height: height,
-//         color: Colors.grey[300],
-//         child: const Icon(Icons.image, size: 50),
-//       );
-//     }
-//
-//     BoxFit boxFit = BoxFit.cover;
-//     if (fit != null) {
-//       boxFit = _parseBoxFit(fit);
-//     }
-//
-//     Widget image = Image.network(
-//       url,
-//       width: width,
-//       height: height,
-//       fit: boxFit,
-//       errorBuilder: (context, error, stackTrace) {
-//         return Container(
-//           width: width,
-//           height: height,
-//           color: Colors.grey[300],
-//           child: const Icon(Icons.broken_image, size: 50),
-//         );
-//       },
-//     );
-//
-//     return image; // Images don't have padding in your model
-//   }
-//
-//   static Widget _buildContainer(WidgetModel widgetModel) {
-//     final List<Widget> childWidgets = widgetModel.children
-//             ?.map((child) => _buildWidgetModel(child))
-//             .toList() ??
-//         [];
-//
-//     Widget? child;
-//     if (childWidgets.isNotEmpty) {
-//       if (childWidgets.length == 1) {
-//         child = childWidgets[0];
-//       } else {
-//         child = Column(children: childWidgets);
-//       }
-//     }
-//
-//     Widget container = Container(
-//       child: child,
-//     );
-//
-//     return _applyGenericPadding(container, widgetModel.properties);
-//   }
-//
-//   // Helper methods
-//   static Widget _applyPadding(Widget widget, PaddingModel? padding) {
-//     if (padding == null) return widget;
-//
-//     return Padding(
-//       padding: EdgeInsets.only(
-//         left: padding.left ?? 0,
-//         right: padding.right ?? 0,
-//         top: padding.top ?? 0,
-//         bottom: padding.bottom ?? 0,
-//       ),
-//       child: widget,
-//     );
-//   }
-//
-//   static Widget _applyGenericPadding(
-//       Widget widget, WidgetProperties? properties) {
-//     // Try to extract padding from generic properties if available
-//     if (properties is GenericProperties) {
-//       final paddingData = properties.properties['padding'];
-//       if (paddingData != null) {
-//         final padding = PaddingModel.fromJson(paddingData);
-//         return _applyPadding(widget, padding);
-//       }
-//     }
-//     return widget;
-//   }
-//
-//   static Color _parseColor(String colorValue) {
-//     final hex = '0xff$colorValue';
-//     return Color(int.parse(hex));
-//   }
-//
-//   static FontWeight _parseFontWeight(String? fontWeight) {
-//     switch (fontWeight) {
-//       case 'w100':
-//         return FontWeight.w100;
-//       case 'w200':
-//         return FontWeight.w200;
-//       case 'w300':
-//         return FontWeight.w300;
-//       case 'w400':
-//         return FontWeight.w400;
-//       case 'w500':
-//         return FontWeight.w500;
-//       case 'w600':
-//         return FontWeight.w600;
-//       case 'w700':
-//         return FontWeight.w700;
-//       case 'w800':
-//         return FontWeight.w800;
-//       case 'w900':
-//         return FontWeight.w900;
-//       default:
-//         return FontWeight.normal;
-//     }
-//   }
-//
-//   static Alignment _parseAlignment(String alignment) {
-//     switch (alignment) {
-//       case 'center':
-//         return Alignment.center;
-//       case 'centerLeft':
-//         return Alignment.centerLeft;
-//       case 'centerRight':
-//         return Alignment.centerRight;
-//       case 'topCenter':
-//         return Alignment.topCenter;
-//       case 'topLeft':
-//         return Alignment.topLeft;
-//       case 'topRight':
-//         return Alignment.topRight;
-//       case 'bottomCenter':
-//         return Alignment.bottomCenter;
-//       case 'bottomLeft':
-//         return Alignment.bottomLeft;
-//       case 'bottomRight':
-//         return Alignment.bottomRight;
-//       default:
-//         return Alignment.center;
-//     }
-//   }
-//
-//   static BoxFit _parseBoxFit(String fit) {
-//     switch (fit) {
-//       case 'fill':
-//         return BoxFit.fill;
-//       case 'contain':
-//         return BoxFit.contain;
-//       case 'cover':
-//         return BoxFit.cover;
-//       case 'fitWidth':
-//         return BoxFit.fitWidth;
-//       case 'fitHeight':
-//         return BoxFit.fitHeight;
-//       case 'none':
-//         return BoxFit.none;
-//       case 'scaleDown':
-//         return BoxFit.scaleDown;
-//       default:
-//         return BoxFit.cover;
-//     }
-//   }
-// }
-
 class CustomLayoutBuilder {
+  final bool userAction;
+  final ValueNotifier<bool> showWidgetIdListenable;
+
+  CustomLayoutBuilder({
+    required this.showWidgetIdListenable,
+    required this.userAction,
+  });
+
   /// Build Flutter widget from ScaffoldEntity
-  static Widget buildFromScaffoldEntity(ScaffoldEntity scaffoldEntity) {
+  Widget buildFromScaffoldEntity(ScaffoldEntity scaffoldEntity) {
     return _buildScaffold(scaffoldEntity);
   }
 
-  static Widget _buildScaffold(ScaffoldEntity scaffoldEntity) {
+  Widget _buildScaffold(ScaffoldEntity scaffoldEntity) {
     Color? backgroundColor;
     if (scaffoldEntity.properties?.background != null) {
       backgroundColor = _parseColor(scaffoldEntity.properties!.background!);
@@ -433,7 +48,7 @@ class CustomLayoutBuilder {
     );
   }
 
-  static Widget _buildWidgetModel(WidgetModel widgetModel) {
+  Widget _buildWidgetModel(WidgetModel widgetModel) {
     Widget widget;
 
     switch (widgetModel.type) {
@@ -466,13 +81,68 @@ class CustomLayoutBuilder {
     }
 
     // Apply width constraint if specified in properties
-    return _applyWidthConstraint(widget, widgetModel);
+    widget = _applyWidthConstraint(widget, widgetModel);
+
+    // Apply widget ID overlay for all widgets
+    return _wrapWithIdOverlay(widget, widgetModel);
   }
 
-  static Widget _buildColumn(WidgetModel widgetModel) {
+  /// Wraps any widget with an ID overlay that can be toggled
+  Widget _wrapWithIdOverlay(Widget child, WidgetModel widgetModel) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: showWidgetIdListenable,
+      builder: (context, showWidgetId, _) {
+        if (showWidgetId == true && widgetModel.type != 'column') {
+          return Stack(
+            children: [
+              child,
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xffA8A8FF).withOpacity(0.3),
+                    border: Border.all(
+                      color: const Color(0xffA8A8FF),
+                      width: 1,
+                    ),
+                  ),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: Color(0xffC5FAFF),
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(4),
+                        ),
+                      ),
+                      child: Text(
+                        widgetModel.id ?? 'no-id',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return child;
+      },
+    );
+  }
+
+  Widget _buildColumn(WidgetModel widgetModel) {
     final List<Widget> childWidgets = widgetModel.children
-        ?.map((child) => _buildWidgetModel(child))
-        .toList() ??
+            ?.map((child) => _buildWidgetModel(child))
+            .toList() ??
         [];
 
     // Extract column-specific properties from GenericProperties if available
@@ -487,7 +157,8 @@ class CustomLayoutBuilder {
       }
 
       if (props['crossAxisAlignment'] != null) {
-        crossAxisAlignment = _parseCrossAxisAlignment(props['crossAxisAlignment']);
+        crossAxisAlignment =
+            _parseCrossAxisAlignment(props['crossAxisAlignment']);
       }
     }
 
@@ -500,10 +171,10 @@ class CustomLayoutBuilder {
     return _applyGenericPadding(column, widgetModel.properties);
   }
 
-  static Widget _buildRow(WidgetModel widgetModel) {
+  Widget _buildRow(WidgetModel widgetModel) {
     final List<Widget> childWidgets = widgetModel.children
-        ?.map((child) => _buildWidgetModel(child))
-        .toList() ??
+            ?.map((child) => _buildWidgetModel(child))
+            .toList() ??
         [];
 
     // Extract row-specific properties from GenericProperties if available
@@ -518,7 +189,8 @@ class CustomLayoutBuilder {
       }
 
       if (props['crossAxisAlignment'] != null) {
-        crossAxisAlignment = _parseCrossAxisAlignment(props['crossAxisAlignment']);
+        crossAxisAlignment =
+            _parseCrossAxisAlignment(props['crossAxisAlignment']);
       }
     }
 
@@ -567,7 +239,7 @@ class CustomLayoutBuilder {
     return _applyPadding(textWidget, textProps?.padding);
   }
 
-  static Widget _buildTextField(WidgetModel widgetModel) {
+   Widget _buildTextField(WidgetModel widgetModel) {
     final textFieldProps = widgetModel.properties as TextFieldProperties?;
 
     InputDecoration inputDecoration = const InputDecoration();
@@ -577,16 +249,18 @@ class CustomLayoutBuilder {
 
       if (decoration != null) {
         inputDecoration = InputDecoration(
+          enabled: userAction,
           hintText: decoration.hintText,
           hintStyle: decoration.hintStyle != null
               ? TextStyle(
-            fontSize: decoration.hintStyle!.fontSize,
-            color: decoration.hintStyle!.color != null
-                ? _parseColor(decoration.hintStyle!.color!)
-                : null,
-            fontFamily: decoration.hintStyle!.fontFamily,
-            fontWeight: _parseFontWeight(decoration.hintStyle!.fontWeight),
-          )
+                  fontSize: decoration.hintStyle!.fontSize,
+                  color: decoration.hintStyle!.color != null
+                      ? _parseColor(decoration.hintStyle!.color!)
+                      : null,
+                  fontFamily: decoration.hintStyle!.fontFamily,
+                  fontWeight:
+                      _parseFontWeight(decoration.hintStyle!.fontWeight),
+                )
               : null,
           filled: decoration.filled ?? false,
           fillColor: decoration.fillColor != null
@@ -635,7 +309,8 @@ class CustomLayoutBuilder {
     final double elevation = buttonProps?.elevation ?? 2.0;
 
     Widget button = SizedBox(
-      width: double.infinity, // Make button full width by default
+      width: buttonProps?.width ?? double.infinity,
+      // Make button full width by default
       child: ElevatedButton(
         onPressed: () {
           // Add your button action here
@@ -719,7 +394,7 @@ class CustomLayoutBuilder {
               child: CircularProgressIndicator(
                 value: loadingProgress.expectedTotalBytes != null
                     ? loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!
+                        loadingProgress.expectedTotalBytes!
                     : null,
               ),
             ),
@@ -739,13 +414,13 @@ class CustomLayoutBuilder {
       ),
     );
 
-    return image; // Images don't have padding in your model but width/height are handled above
+    return image;
   }
 
-  static Widget _buildContainer(WidgetModel widgetModel) {
+  Widget _buildContainer(WidgetModel widgetModel) {
     final List<Widget> childWidgets = widgetModel.children
-        ?.map((child) => _buildWidgetModel(child))
-        .toList() ??
+            ?.map((child) => _buildWidgetModel(child))
+            .toList() ??
         [];
 
     Widget? child;
@@ -780,7 +455,8 @@ class CustomLayoutBuilder {
         margin = _parseEdgeInsets(props['margin']);
       }
       if (props['borderRadius'] != null) {
-        borderRadius = BorderRadius.circular(_parseDouble(props['borderRadius']) ?? 0);
+        borderRadius =
+            BorderRadius.circular(_parseDouble(props['borderRadius']) ?? 0);
       }
     }
 

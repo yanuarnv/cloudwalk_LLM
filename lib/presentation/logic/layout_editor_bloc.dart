@@ -1,6 +1,7 @@
 import 'package:cloudwalk_llm/application/failure.dart';
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
 import 'package:cloudwalk_llm/domain/repositories/layout_editor_repository.dart';
+import 'package:cloudwalk_llm/presentation/componets/toast_widget.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +30,9 @@ class LayoutEditorBloc extends ReplayBloc<LayoutEditorEvent, LayoutState> {
         }
         if (l is InternalFailure) {
           emit(state.copyWith(error: l.toString(), isLoading: false));
-          showToast(
-            "Error ${l.msg}",
+          showToastWidget(
+            ToastWidget(msg: l.msg),
             position: ToastPosition.top,
-            backgroundColor: Colors.red,
           );
         }
       },

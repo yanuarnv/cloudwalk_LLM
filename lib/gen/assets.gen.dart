@@ -21,6 +21,10 @@ class $AssetsIconsGen {
   SvgGenImage get ellipsisCircle =>
       const SvgGenImage('assets/icons/ellipsis.circle.svg');
 
+  /// File path: assets/icons/exclamationmark.triangle.svg
+  SvgGenImage get exclamationmarkTriangle =>
+      const SvgGenImage('assets/icons/exclamationmark.triangle.svg');
+
   /// File path: assets/icons/lightbulb.max.fill.svg
   SvgGenImage get lightbulbMaxFill =>
       const SvgGenImage('assets/icons/lightbulb.max.fill.svg');
@@ -34,8 +38,13 @@ class $AssetsIconsGen {
       const SvgGenImage('assets/icons/wand.and.sparkles.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values =>
-      [ellipsisCircle, lightbulbMaxFill, lightbulbMax, wandAndSparkles];
+  List<SvgGenImage> get values => [
+        ellipsisCircle,
+        exclamationmarkTriangle,
+        lightbulbMaxFill,
+        lightbulbMax,
+        wandAndSparkles
+      ];
 }
 
 class Assets {

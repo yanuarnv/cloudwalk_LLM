@@ -126,25 +126,20 @@ class LocalNlp extends Processor {
     if (data == null) {
       throw InternalFailure("No data available");
     }
+    final tokens = prompt.toLowerCase().trim().split(RegExp(r'\s+'));
+    final action = tokens.first;
 
-    try {
-      final tokens = prompt.toLowerCase().trim().split(RegExp(r'\s+'));
-      final action = tokens.first;
-
-      switch (action) {
-        case 'add':
-          return _handleAddAction(tokens, data);
-        case 'remove':
-          return _handleRemoveAction(tokens, data);
-        case 'change':
-        case 'update':
-        case 'modify':
-          return _handleChangeAction(tokens, data);
-        default:
-          throw InternalFailure("Unsupported action: $action");
-      }
-    } catch (e) {
-      throw InternalFailure("Failed to process prompt: ${e.toString()}");
+    switch (action) {
+      case 'add':
+        return _handleAddAction(tokens, data);
+      case 'remove':
+        return _handleRemoveAction(tokens, data);
+      case 'change':
+      case 'update':
+      case 'modify':
+        return _handleChangeAction(tokens, data);
+      default:
+        throw InternalFailure("Unsupported action: $action");
     }
   }
 
@@ -159,8 +154,8 @@ class LocalNlp extends Processor {
     }
 
     // Generate unique ID
-    final existingWidgets = data.children.first.children!
-        .where((w) => w.type == widgetType);
+    final existingWidgets =
+        data.children.first.children!.where((w) => w.type == widgetType);
     final id = existingWidgets.length + 1;
 
     final widget = WidgetModel(
@@ -214,7 +209,8 @@ class LocalNlp extends Processor {
 
   ScaffoldEntity _handleChangeAction(List<String> tokens, ScaffoldEntity data) {
     if (tokens.length < 4) {
-      throw InternalFailure("Change command requires target, property, and value");
+      throw InternalFailure(
+          "Change command requires target, property, and value");
     }
 
     // Handle background change: "change background to red"
@@ -227,7 +223,8 @@ class LocalNlp extends Processor {
     // Handle widget-specific changes
     final target = tokens[1];
     final property = tokens[2];
-    final value = tokens.length > 4 ? tokens[4] : tokens[3]; // Handle "to" keyword
+    final value =
+        tokens.length > 4 ? tokens[4] : tokens[3]; // Handle "to" keyword
 
     // Find target widget
     WidgetModel? targetWidget = _findTargetWidget(target, data);
@@ -252,8 +249,9 @@ class LocalNlp extends Processor {
     // Try to find by exact ID first: "button1", "text2"
     if (_isWidgetId(target)) {
       return widgets.firstWhere(
-            (w) => w.id == target,
-        orElse: () => throw InternalFailure("Widget with ID '$target' not found"),
+        (w) => w.id == target,
+        orElse: () =>
+            throw InternalFailure("Widget with ID '$target' not found"),
       );
     }
 
@@ -268,7 +266,8 @@ class LocalNlp extends Processor {
     return null;
   }
 
-  void _updateWidgetProperty(WidgetModel widget, String property, String value) {
+  void _updateWidgetProperty(
+      WidgetModel widget, String property, String value) {
     switch (widget.type) {
       case 'button':
         _updateButtonProperty(widget, property, value);
@@ -287,7 +286,8 @@ class LocalNlp extends Processor {
     }
   }
 
-  void _updateButtonProperty(WidgetModel widget, String property, String value) {
+  void _updateButtonProperty(
+      WidgetModel widget, String property, String value) {
     final props = widget.properties! as ButtonProperties;
 
     switch (property) {
@@ -297,9 +297,7 @@ class LocalNlp extends Processor {
         break;
       case 'width':
         final width = _parseDoubleValue(value);
-        // Note: ButtonProperties might need width property added
-        // For now, we could wrap in container or extend ButtonProperties
-        throw InternalFailure("Width property for button needs implementation in ButtonProperties");
+        props.width = width;
       case 'text':
         props.text = value;
         break;
@@ -342,7 +340,8 @@ class LocalNlp extends Processor {
     }
   }
 
-  void _updateTextFieldProperty(WidgetModel widget, String property, String value) {
+  void _updateTextFieldProperty(
+      WidgetModel widget, String property, String value) {
     final props = widget.properties! as TextFieldProperties;
 
     switch (property) {
@@ -353,9 +352,10 @@ class LocalNlp extends Processor {
         props.decoration!.fillColor = colorValue;
         break;
       case 'width':
-      // Note: TextFieldProperties might need width property added
-      // Could be handled by wrapping in SizedBox or Container
-        throw InternalFailure("Width property for textfield needs implementation");
+        // Note: TextFieldProperties might need width property added
+        // Could be handled by wrapping in SizedBox or Container
+        throw InternalFailure(
+            "Width property for textfield needs implementation");
       case 'hint':
         props.decoration ??= InputDecorationModel();
         props.decoration!.hintText = value;
@@ -393,7 +393,7 @@ class LocalNlp extends Processor {
         props.url = value;
         break;
       default:
-        throw InternalFailure("Unsupported image property: $property");
+        throw InternalFailure("Unsupported image property");
     }
   }
 
@@ -489,4 +489,3 @@ class LocalNlp extends Processor {
     return fitMap[fit.toLowerCase()] ?? 'cover';
   }
 }
-

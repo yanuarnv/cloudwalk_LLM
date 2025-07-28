@@ -7,21 +7,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PreviewScreen extends StatelessWidget {
-  const PreviewScreen({super.key});
+  final BuildContext blocProvider;
+  final ValueNotifier<bool> showWidgetIdListenable;
+
+  const PreviewScreen({
+    super.key,
+    required this.showWidgetIdListenable,
+    required this.blocProvider,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LayoutEditorBloc, LayoutState>(
+        bloc: BlocProvider.of<LayoutEditorBloc>(blocProvider),
         builder: (context, state) {
-      if (state.isLoading) {
-        return Center(
-          child: Text("Loading....."),
-        );
-      } else {
-        print(state.data?.children.first.children?.last.toJson());
-        return CustomLayoutBuilder.buildFromScaffoldEntity(state.data!);
-      }
-    });
+          if (state.isLoading) {
+            return Center(
+              child: Text("Loading....."),
+            );
+          } else {
+            return CustomLayoutBuilder(
+                    showWidgetIdListenable: showWidgetIdListenable,
+                    userAction: true)
+                .buildFromScaffoldEntity(state.data!);
+          }
+        });
   }
 }
-

@@ -276,12 +276,14 @@ class TextFieldProperties extends WidgetProperties {
 // Button Properties
 class ButtonProperties extends WidgetProperties {
   String? text;
+  double width;
   PaddingModel? padding;
   String? backgroundColor;
   double? elevation;
 
   ButtonProperties({
     this.text = "Text",
+    this.width = double.infinity,
     this.padding,
     this.backgroundColor = "0D78F2",
     this.elevation = 0.0,
