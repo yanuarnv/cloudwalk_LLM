@@ -12,9 +12,9 @@ class LayoutEditorRepositoryImpl extends LayoutEditorRepository {
 
   @override
   Future<Either<Failure, ScaffoldEntity>> changeLayout(
-      String prompt, BuildContext context) async {
+      String prompt, ScaffoldEntity model) async {
     try {
-      final data = await processor.nlpProcessing(prompt, context);
+      final data = await processor.nlpProcessing(prompt, model);
       return Right(data);
     } on InternalFailure catch (e) {
       return Left(e);

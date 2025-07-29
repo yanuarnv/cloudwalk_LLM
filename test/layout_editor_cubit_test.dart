@@ -1,44 +1,26 @@
-import 'package:cloudwalk_llm/application/failure.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:cloudwalk_llm/data/data_sources/local_nlp.dart';
+import 'package:cloudwalk_llm/data/data_sources/processor.dart';
+import 'package:cloudwalk_llm/data/repositories/layout_editor_repository_impl.dart';
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
 import 'package:cloudwalk_llm/domain/repositories/layout_editor_repository.dart';
-import 'package:cloudwalk_llm/presentation/componets/toast_widget.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cloudwalk_llm/presentation/logic/layout_editor_cubit.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:replay_bloc/replay_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
-part 'layout_editor_state.dart';
+void main() {
+  late LayoutEditorRepository repository;
+  late LayoutEditorCubit cubit;
+  late LocalNlp processor;
+  late ScaffoldEntity initialState;
 
-class LayoutEditorCubit extends ReplayCubit<LayoutState> {
-  final LayoutEditorRepository _repository;
-
-  LayoutEditorCubit(this._repository)
-      : super(LayoutState(data: _getInitialData()));
-
-  void changeLayout(String prompt) async {
-    final data = await _repository.changeLayout(prompt, state.data!);
-    data.fold(
-      (l) {
-        if (l is ServerFailure) {}
-        if (l is InternalFailure) {
-          showToastWidget(
-            ToastWidget(msg: l.msg,type: ToastType.error,),
-            position: ToastPosition.top,
-          );
-        }
-      },
-      (r) {
-
-        emit(state.copyWith(data: r));
-      },
-    );
-  }
-  void reset(){
-    emit(LayoutState(data: _getInitialData()));
-  }
-  static ScaffoldEntity _getInitialData() {
-    return ScaffoldEntity.fromJson({
+  setUpAll(() {
+    processor = LocalNlp();
+    repository = LayoutEditorRepositoryImpl(processor);
+    cubit = LayoutEditorCubit(repository);
+    initialState = ScaffoldEntity.fromJson({
       "type": "scaffold",
       "id": "scaffold1",
       "properties": {"background": "ffffff"},
@@ -146,10 +128,23 @@ class LayoutEditorCubit extends ReplayCubit<LayoutState> {
                   "fontFamily": "Inter"
                 }
               }
-            }
+            },
           ]
         }
       ]
     });
-  }
+  });
+
+  group("Testing Cubit Logic", () {
+    test("Ensure Initial State", () {
+      expect(cubit.state.data != null, true);
+    });
+
+    test("Ensure state data is immutable", () async {
+      final result = await processor.nlpProcessing("add button", initialState);
+      expect(result, isNot(equals(initialState)));
+    });
+
+
+  });
 }

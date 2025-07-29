@@ -93,7 +93,8 @@ class _MainScreenState extends State<MainScreen> {
                       FocusScope.of(context).unfocus();
                       context
                           .read<LayoutEditorCubit>()
-                          .changeLayout(promtController.text, context);
+                          .changeLayout(promtController.text);
+                      promtController.clear();
                     },
                   ),
                 ),

@@ -31,26 +31,20 @@ class LocalNlp extends Processor {
   };
 
   @override
-  Future<ScaffoldEntity> nlpProcessing(String prompt, BuildContext context) async {
-    final state = context.read<LayoutEditorCubit>().state;
-    final data = state.data; // state is now ScaffoldEntity directly
+  Future<ScaffoldEntity> nlpProcessing(String prompt, ScaffoldEntity model) async {
 
     final tokens = prompt.toLowerCase().trim().split(RegExp(r'\s+'));
     final action = tokens.first;
 
-    if (data == null) {
-      throw InternalFailure("No data available");
-    }
-
     switch (action) {
       case 'add':
-        return _handleAddAction(tokens, data);
+        return _handleAddAction(tokens, model);
       case 'remove':
-        return _handleRemoveAction(tokens, data);
+        return _handleRemoveAction(tokens, model);
       case 'change':
       case 'update':
       case 'modify':
-        return _handleChangeAction(tokens, data);
+        return _handleChangeAction(tokens, model);
       default:
         throw InternalFailure("Unsupported action: $action");
     }

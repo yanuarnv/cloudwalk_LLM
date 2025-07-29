@@ -4,5 +4,5 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 
 abstract class LayoutEditorRepository{
-  Future<Either<Failure,ScaffoldEntity>> changeLayout(String prompt,BuildContext context);
+  Future<Either<Failure,ScaffoldEntity>> changeLayout(String prompt,ScaffoldEntity model);
 }
