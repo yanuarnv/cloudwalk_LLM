@@ -1,14 +1,5 @@
 
 
-
-# NLP Flutter UI Builder 🧠
-
-> Natural Language to Flutter UI: Build interfaces with conversational commands
-
-![img.png](img.png)
-![img_1.png](img_1.png)
-![img_2.png](img_2.png)
-
 ## 🚀 Overview
 
 NLP Flutter UI Builder is a Flutter application that transforms natural language into live Flutter UI components. Using advanced NLP processing, you can create, modify, and manage UI elements through simple conversational commands.
