@@ -21,21 +21,46 @@ class CustomLayoutBuilder {
       backgroundColor = _parseColor(scaffoldEntity.properties!.background!);
     }
 
+    // Find special scaffold children
+    WidgetModel? drawer;
+    WidgetModel? appBar;
+    WidgetModel? bottomNavigationBar;
+    List<WidgetModel> bodyChildren = [];
+
+    for (var child in scaffoldEntity.children) {
+      switch (child.type) {
+        case 'drawer':
+          drawer = child;
+          break;
+        case 'appBar':
+          appBar = child;
+          break;
+        case 'bottomNavigationBar':
+          bottomNavigationBar = child;
+          break;
+        default:
+          bodyChildren.add(child);
+      }
+    }
+
     Widget? body;
-    if (scaffoldEntity.children.isNotEmpty) {
-      if (scaffoldEntity.children.length == 1) {
-        body = _buildWidgetModel(scaffoldEntity.children[0]);
+    if (bodyChildren.isNotEmpty) {
+      if (bodyChildren.length == 1) {
+        body = _buildWidgetModel(bodyChildren[0]);
       } else {
         body = Column(
-          children: scaffoldEntity.children
-              .map((child) => _buildWidgetModel(child))
-              .toList(),
+          children: bodyChildren.map((child) => _buildWidgetModel(child)).toList(),
         );
       }
     }
 
     return Scaffold(
       backgroundColor: backgroundColor,
+      drawer: drawer != null ? _buildDrawer(drawer) : null,
+      appBar: appBar != null ? _buildAppBar(appBar) : null,
+      bottomNavigationBar: bottomNavigationBar != null
+          ? _buildBottomNavigationBar(bottomNavigationBar)
+          : null,
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Padding(
@@ -73,6 +98,9 @@ class CustomLayoutBuilder {
       case 'container':
         widget = _buildContainer(widgetModel);
         break;
+      case 'listTile':
+        widget = _buildListTile(widgetModel);
+        break;
       default:
         widget = Container(
           padding: const EdgeInsets.all(8),
@@ -80,13 +108,8 @@ class CustomLayoutBuilder {
         );
     }
 
-    // Apply width constraint if specified in properties
-    widget = _applyWidthConstraint(widget, widgetModel);
-
-    // Apply widget ID overlay for all widgets
     return _wrapWithIdOverlay(widget, widgetModel);
   }
-
   /// Wraps any widget with an ID overlay that can be toggled
   Widget _wrapWithIdOverlay(Widget child, WidgetModel widgetModel) {
     return ValueListenableBuilder<bool>(
@@ -353,7 +376,7 @@ class CustomLayoutBuilder {
     final double? width = imageProps?.width;
     final double? height = imageProps?.height;
     final String? fit = imageProps?.fit;
-
+    print("image url $url");
     if (url == null || url.isEmpty) {
       return Container(
         width: width ?? 100,
@@ -702,5 +725,90 @@ class CustomLayoutBuilder {
       default:
         return BoxFit.cover;
     }
+  }
+
+
+  Widget _buildDrawer(WidgetModel drawerModel) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: drawerModel.children?.map((child) {
+          if (child.type == 'listTile') {
+            return _buildListTile(child);
+          }
+          return _buildWidgetModel(child);
+        }).toList() ?? [],
+      ),
+    );
+  }
+
+  Widget _buildListTile(WidgetModel listTileModel) {
+    final props = listTileModel.properties as ListTileProperties?;
+
+    return ListTile(
+      leading: props?.leading != null
+          ? Image.network(props!.leading!, width: 24, height: 24)
+          : null,
+      title: Text(props?.title ?? ''),
+      onTap: () {
+        // Handle list tile tap
+      },
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(WidgetModel appBarModel) {
+    final props = appBarModel.properties as AppBarProperties?;
+
+    Color? backgroundColor;
+    Color? foregroundColor;
+
+    if (props?.backgroundColor != null) {
+      backgroundColor = _parseColor(props!.backgroundColor!);
+    }
+    if (props?.foregroundColor != null) {
+      foregroundColor = _parseColor(props!.foregroundColor!);
+    }
+
+    Widget? title;
+    if (appBarModel.children?.isNotEmpty ?? false) {
+      title = _buildWidgetModel(appBarModel.children![0]);
+    }
+
+    return AppBar(
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      title: title,
+    );
+  }
+
+  Widget _buildBottomNavigationBar(WidgetModel bottomNavModel) {
+    final items = bottomNavModel.children?.map((child) {
+      if (child.type == 'bottomNavigationBarItem') {
+        return _buildBottomNavigationBarItem(child);
+      }
+      return BottomNavigationBarItem(
+        icon: Icon(Icons.error),
+        label: 'Unknown',
+      );
+    }).toList() ?? [];
+
+    return BottomNavigationBar(
+      items: items,
+      currentIndex: 0,
+      onTap: (index) {
+        // Handle navigation
+      },
+    );
+  }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem(WidgetModel itemModel) {
+    final props = itemModel.properties as BottomNavigationBarItemProperties?;
+
+    return BottomNavigationBarItem(
+      icon: props?.icon != null
+          ? Image.network(props!.icon!, width: 24, height: 24)
+          : Icon(Icons.error),
+      label: props?.label,
+    );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:cloudwalk_llm/application/failure.dart';
-import 'package:cloudwalk_llm/data/data_sources/processor.dart';
+import 'package:cloudwalk_llm/Infrastructure/processor.dart';
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
 import 'package:cloudwalk_llm/domain/repositories/layout_editor_repository.dart';
 import 'package:dartz/dartz.dart';
@@ -20,6 +20,8 @@ class LayoutEditorRepositoryImpl extends LayoutEditorRepository {
       return Left(e);
     } on ServerFailure catch (e) {
       return Left(e);
+    }catch(e,s){
+      return Left(ServerFailure("Not Supported Prompt"));
     }
   }
 }

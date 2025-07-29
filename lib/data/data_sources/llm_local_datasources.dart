@@ -1,13 +1,12 @@
 import 'package:cloudwalk_llm/application/failure.dart';
-import 'package:cloudwalk_llm/data/data_sources/processor.dart';
+import 'package:cloudwalk_llm/Infrastructure/processor.dart';
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
 import 'package:cloudwalk_llm/presentation/logic/layout_editor_cubit.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LocalNlp extends Processor {
-  // Your existing constants remain the same...
+class LlmLocalDatasources extends Processor {
   static const Map<String, String> colorMap = {
     'red': 'F44336',
     'blue': '2196F3',

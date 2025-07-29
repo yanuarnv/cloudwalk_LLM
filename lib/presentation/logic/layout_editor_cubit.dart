@@ -20,23 +20,27 @@ class LayoutEditorCubit extends ReplayCubit<LayoutState> {
     final data = await _repository.changeLayout(prompt, state.data!);
     data.fold(
       (l) {
-        if (l is ServerFailure) {}
-        if (l is InternalFailure) {
+        if (l is ServerFailure) {
           showToastWidget(
-            ToastWidget(msg: l.msg,type: ToastType.error,),
+            ToastWidget(
+              msg: l.msg,
+              type: ToastType.error,
+            ),
             position: ToastPosition.top,
           );
         }
+        if (l is InternalFailure) {}
       },
       (r) {
-
         emit(state.copyWith(data: r));
       },
     );
   }
-  void reset(){
+
+  void reset() {
     emit(LayoutState(data: _getInitialData()));
   }
+
   static ScaffoldEntity _getInitialData() {
     return ScaffoldEntity.fromJson({
       "type": "scaffold",

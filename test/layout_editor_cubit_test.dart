@@ -1,6 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:cloudwalk_llm/data/data_sources/local_nlp.dart';
-import 'package:cloudwalk_llm/data/data_sources/processor.dart';
+import 'package:cloudwalk_llm/data/data_sources/llm_local_datasources.dart';
+import 'package:cloudwalk_llm/Infrastructure/processor.dart';
 import 'package:cloudwalk_llm/data/repositories/layout_editor_repository_impl.dart';
 import 'package:cloudwalk_llm/domain/entities/scaffold_entity.dart';
 import 'package:cloudwalk_llm/domain/repositories/layout_editor_repository.dart';
@@ -13,11 +13,11 @@ import 'package:mocktail/mocktail.dart';
 void main() {
   late LayoutEditorRepository repository;
   late LayoutEditorCubit cubit;
-  late LocalNlp processor;
+  late LlmLocalDatasources processor;
   late ScaffoldEntity initialState;
 
   setUpAll(() {
-    processor = LocalNlp();
+    processor = LlmLocalDatasources();
     repository = LayoutEditorRepositoryImpl(processor);
     cubit = LayoutEditorCubit(repository);
     initialState = ScaffoldEntity.fromJson({
