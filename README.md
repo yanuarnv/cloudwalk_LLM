@@ -39,7 +39,7 @@ lib/
 │   └── failure.dart              # Error handling
 ├── data/
 │   └── data_sources/
-│       └── processor.dart        # NLP processing interface
+│       └── local_nlp.dart        # NLP processing interface
 ├── domain/
 │   └── entities/
 │       └── scaffold_entity.dart  # Core UI entities
