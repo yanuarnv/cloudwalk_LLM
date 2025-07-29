@@ -2,6 +2,7 @@ import 'package:cloudwalk_llm/application/cl_text_style.dart';
 import 'package:cloudwalk_llm/domain/repositories/layout_editor_repository.dart';
 import 'package:cloudwalk_llm/gen/assets.gen.dart';
 import 'package:cloudwalk_llm/helpers/layout_builder.dart';
+import 'package:cloudwalk_llm/helpers/shimmer.dart';
 import 'package:cloudwalk_llm/presentation/componets/toast_widget.dart';
 import 'package:cloudwalk_llm/presentation/logic/layout_editor_cubit.dart';
 import 'package:cloudwalk_llm/presentation/ui/preview_screen.dart';
@@ -30,6 +31,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final promtController = TextEditingController();
   final _showIdWidget = ValueNotifier(false);
+  final _shimmerGradient = LinearGradient(
+    colors: [
+      Color(0xFFEBEBF4).withValues(alpha: 0.5),
+      Color(0xFFF4F4F4).withValues(alpha: 0.7),
+      Color(0xFFEBEBF4).withValues(alpha: 0.5),
+    ],
+    stops: [0.1, 0.3, 0.4],
+    begin: Alignment(-1.0, -0.3),
+    end: Alignment(1.0, 0.3),
+    tileMode: TileMode.clamp,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -79,10 +91,16 @@ class _MainScreenState extends State<MainScreen> {
             ),
             body: Stack(
               children: [
-                CustomLayoutBuilder(
-                        showWidgetIdListenable: _showIdWidget,
-                        userAction: false)
-                    .buildFromScaffoldEntity(state.data!),
+                Shimmer(
+                  linearGradient: _shimmerGradient,
+                  child: ShimmerLoading(
+                    isLoading: state.isLoading,
+                    child: CustomLayoutBuilder(
+                      showWidgetIdListenable: _showIdWidget,
+                      userAction: false,
+                    ).buildFromScaffoldEntity(state.data!),
+                  ),
+                ),
                 Positioned(
                   bottom: 0,
                   left: 0,

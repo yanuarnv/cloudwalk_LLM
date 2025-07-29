@@ -12,7 +12,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:oktoast/oktoast.dart';
 
 void main() async{
-  Bloc.observer = AppBlocObserver();
   await dotenv.load(fileName: "assets/.env");
   runApp(const MyApp());
 }

@@ -14,12 +14,14 @@ class LayoutEditorCubit extends ReplayCubit<LayoutState> {
   final LayoutEditorRepository _repository;
 
   LayoutEditorCubit(this._repository)
-      : super(LayoutState(data: _getInitialData()));
+      : super(LayoutState(data: _getInitialData(),isLoading: false));
 
   void changeLayout(String prompt) async {
+    emit(state.copyWith(isLoading: true));
     final data = await _repository.changeLayout(prompt, state.data!);
     data.fold(
       (l) {
+        emit(state.copyWith(isLoading: false));
         if (l is ServerFailure) {
           showToastWidget(
             ToastWidget(
@@ -32,7 +34,7 @@ class LayoutEditorCubit extends ReplayCubit<LayoutState> {
         if (l is InternalFailure) {}
       },
       (r) {
-        emit(state.copyWith(data: r));
+        emit(state.copyWith(data: r,isLoading: false));
       },
     );
   }
@@ -56,7 +58,7 @@ class LayoutEditorCubit extends ReplayCubit<LayoutState> {
               "id": "image1",
               "properties": {
                 "url":
-                    "https://img.icons8.com/?size=48&id=iGqse5s20iex&format=png",
+                    "https://picsum.photos/100/100",
                 "width": 100,
                 "height": 100,
                 "fit": "cover"

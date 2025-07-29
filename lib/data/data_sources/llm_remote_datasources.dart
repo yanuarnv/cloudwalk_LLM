@@ -35,13 +35,14 @@ class LlmRemoteDataSources extends Processor {
               "${model.toJson()}\n\nInstruction: $prompt"
         }
       ],
-      "temperature": 0.7,
+      "temperature": 0.1,
       "response_format": {"type": "json_object"}
     });
 
     final response = await http.post(url, headers: headers, body: body);
     final decodeData = jsonDecode(response.body);
     final chatCompletionEntity = ChatCompletionEntity.fromJson(decodeData);
+    print(chatCompletionEntity.choices.first.message.content);
     final entity = ScaffoldEntity.fromJson(jsonDecode(
       chatCompletionEntity.choices.first.message.content,
     ));

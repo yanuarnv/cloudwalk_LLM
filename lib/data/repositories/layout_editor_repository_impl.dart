@@ -21,7 +21,7 @@ class LayoutEditorRepositoryImpl extends LayoutEditorRepository {
     } on ServerFailure catch (e) {
       return Left(e);
     }catch(e,s){
-      return Left(ServerFailure("Not Supported Prompt"));
+      return Left(ServerFailure("Something went wrong please try again"));
     }
   }
 }

@@ -18,6 +18,9 @@ This project supports prompt-based layout editing using an LLM API.
 
 Purpose: Transform natural language commands into Flutter UI structures
 
+- Multi-language Prompt Support
+- Layout Switching
+
 Example Prompts:
 
 add button with text 'Submit'

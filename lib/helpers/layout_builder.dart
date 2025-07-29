@@ -49,7 +49,8 @@ class CustomLayoutBuilder {
         body = _buildWidgetModel(bodyChildren[0]);
       } else {
         body = Column(
-          children: bodyChildren.map((child) => _buildWidgetModel(child)).toList(),
+          children:
+              bodyChildren.map((child) => _buildWidgetModel(child)).toList(),
         );
       }
     }
@@ -110,6 +111,7 @@ class CustomLayoutBuilder {
 
     return _wrapWithIdOverlay(widget, widgetModel);
   }
+
   /// Wraps any widget with an ID overlay that can be toggled
   Widget _wrapWithIdOverlay(Widget child, WidgetModel widgetModel) {
     return ValueListenableBuilder<bool>(
@@ -239,7 +241,7 @@ class CustomLayoutBuilder {
         fontWeight: _parseFontWeight(textProps.style!.fontWeight),
         color: textProps.style!.color != null
             ? _parseColor(textProps.style!.color!)
-            : null,
+            : Colors.black,
         fontFamily: textProps.style!.fontFamily,
       );
     }
@@ -262,7 +264,7 @@ class CustomLayoutBuilder {
     return _applyPadding(textWidget, textProps?.padding);
   }
 
-   Widget _buildTextField(WidgetModel widgetModel) {
+  Widget _buildTextField(WidgetModel widgetModel) {
     final textFieldProps = widgetModel.properties as TextFieldProperties?;
 
     InputDecoration inputDecoration = const InputDecoration();
@@ -335,10 +337,7 @@ class CustomLayoutBuilder {
       width: buttonProps?.width ?? double.infinity,
       // Make button full width by default
       child: ElevatedButton(
-        onPressed: () {
-          // Add your button action here
-          print('Button pressed: $text (ID: ${widgetModel.id})');
-        },
+        onPressed: () {},
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           elevation: elevation,
@@ -376,7 +375,7 @@ class CustomLayoutBuilder {
     final double? width = imageProps?.width;
     final double? height = imageProps?.height;
     final String? fit = imageProps?.fit;
-    print("image url $url");
+
     if (url == null || url.isEmpty) {
       return Container(
         width: width ?? 100,
@@ -727,17 +726,17 @@ class CustomLayoutBuilder {
     }
   }
 
-
   Widget _buildDrawer(WidgetModel drawerModel) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: drawerModel.children?.map((child) {
-          if (child.type == 'listTile') {
-            return _buildListTile(child);
-          }
-          return _buildWidgetModel(child);
-        }).toList() ?? [],
+              if (child.type == 'listTile') {
+                return _buildListTile(child);
+              }
+              return _buildWidgetModel(child);
+            }).toList() ??
+            [],
       ),
     );
   }
@@ -775,22 +774,25 @@ class CustomLayoutBuilder {
     }
 
     return AppBar(
+      iconTheme: IconThemeData(color: Colors.black),
       backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-      title: title,
+      foregroundColor: Colors.black,
+      title: title?? Text('Appbar'),
+      elevation: 1,
     );
   }
 
   Widget _buildBottomNavigationBar(WidgetModel bottomNavModel) {
     final items = bottomNavModel.children?.map((child) {
-      if (child.type == 'bottomNavigationBarItem') {
-        return _buildBottomNavigationBarItem(child);
-      }
-      return BottomNavigationBarItem(
-        icon: Icon(Icons.error),
-        label: 'Unknown',
-      );
-    }).toList() ?? [];
+          if (child.type == 'bottomNavigationBarItem') {
+            return _buildBottomNavigationBarItem(child);
+          }
+          return BottomNavigationBarItem(
+            icon: Icon(Icons.error),
+            label: 'Unknown',
+          );
+        }).toList() ??
+        [];
 
     return BottomNavigationBar(
       items: items,
